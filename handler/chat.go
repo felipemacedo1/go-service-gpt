@@ -3,6 +3,7 @@ package handler
 import (
 	"gpt-service-go/service"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -27,6 +28,10 @@ func (h *ChatHandler) HandleChat(c echo.Context) error {
 	req := new(ChatRequest)
 	if err := c.Bind(req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body")
+	}
+	
+	if len(strings.TrimSpace(req.Message)) > 1000 {
+		return echo.NewHTTPError(http.StatusBadRequest, "Message too long")
 	}
 
 	resp, err := h.openAIService.SendMessage(req.Message)
