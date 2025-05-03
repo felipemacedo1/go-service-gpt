@@ -6,6 +6,7 @@
   # Use https://search.nixos.org/packages to find packages
   packages = [
     pkgs.go
+    pkgs.openssh
     pkgs.air
   ];
   # Sets environment variables in the workspace
