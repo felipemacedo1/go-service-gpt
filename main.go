@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gpt-service-go/client"
 	"gpt-service-go/config"
+	customMiddleware "gpt-service-go/middleware"
 	"gpt-service-go/handler"
 	"gpt-service-go/middleware"
 	"gpt-service-go/service"
@@ -36,12 +37,15 @@ func main() {
 	openAIService := service.NewOpenAIService(cfg.OpenAIAPIKey)
 	chatHandler := handler.NewChatHandler(openAIService)
 
-	// JWT Middleware
-	e.Use(middleware.JWTValidator(javaClient))
+    // Middleware
+	e.Use(customMiddleware.RateLimiter)
+	
+	chatGroup := e.Group("")
+	chatGroup.Use(middleware.JWTValidator(javaClient))
 
 	// Routes
-	e.POST("/chat", chatHandler.HandleChat)
-
+	chatGroup.POST("/chat", chatHandler.HandleChat)
+	
 	// Start server
 	go func() {
 		if err := e.Start(fmt.Sprintf(":%s", cfg.Port)); err != nil && err != http.ErrServerClosed {
