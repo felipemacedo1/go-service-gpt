@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 type OpenAIService struct {
@@ -49,7 +50,12 @@ func (s *OpenAIService) SendMessage(message string) (string, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.apiKey))
 
-	resp, err := http.DefaultClient.Do(req)
+	client := http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	resp, err := client.Do(req)
+
 	if err != nil {
 		return "", fmt.Errorf("error sending request: %w", err)
 	}

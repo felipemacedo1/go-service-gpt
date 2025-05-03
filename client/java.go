@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"time"
 	"net/http"
 )
 
@@ -22,7 +23,11 @@ func (c *JavaClient) ValidateToken(token string) (bool, error) {
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
-	resp, err := http.DefaultClient.Do(req)
+	httpClient := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return false, fmt.Errorf("error sending request: %w", err)
 	}
