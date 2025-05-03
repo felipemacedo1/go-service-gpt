@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -33,6 +34,8 @@ type ChatCompletionResponse struct {
 	} `json:"choices"`
 }
 
+var ErrNoResponse = errors.New("no response from OpenAI")
+
 func (s *OpenAIService) SendMessage(message string) (string, error) {
 	requestBody := ChatCompletionRequest{
 		Model: "gpt-4o",
@@ -57,5 +60,9 @@ func (s *OpenAIService) SendMessage(message string) (string, error) {
 		return "", fmt.Errorf("error decoding response: %w", err)
 	}
 
-	return response.Choices[0].Message.Content, nil
+	if len(response.Choices) == 0 {
+		return "", ErrNoResponse
+	}
+
+	return response.Choices[0].Message.Content,  nil
 }
