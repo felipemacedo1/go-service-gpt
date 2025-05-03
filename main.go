@@ -3,15 +3,17 @@ package main
 import (
 	"fmt"
 	"gpt-service-go/client"
-	"gpt-service-go/config"
-	customMiddleware "gpt-service-go/middleware"
 	"gpt-service-go/handler"
+	customMiddleware "gpt-service-go/middleware"
+	"gpt-service-go/config"
 	"gpt-service-go/middleware"
 	"gpt-service-go/service"
-	"log"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
+	"github.com/sirupsen/logrus"
+
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -21,23 +23,30 @@ func main() {
 	// Load config
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Fatalf("Error loading config: %v", err)
+		logrus.Fatalf("Error loading config: %v", err)
 	}
 
-	log.Print("starting server...")
+	// Configure logrus
+	logger := logrus.New()
+	logger.SetFormatter(&logrus.JSONFormatter{})
+	logger.SetOutput(os.Stdout)
+	logger.SetLevel(logrus.InfoLevel)
+
+	logger.Info("starting server...")
 	e := echo.New()
-	
+
 	defer func() {
-        if r := recover(); r != nil {
-            log.Printf("Recovered from panic: %v", r)
-        }
-    }()
+		if r := recover(); r != nil {
+			logger.Errorf("Recovered from panic: %v", r)
+		}
+	}()
+
 	// Create instances
 	javaClient := client.NewJavaClient(cfg.JavaBackendAuthURL)
-	openAIService := service.NewOpenAIService(cfg.OpenAIAPIKey)
-	chatHandler := handler.NewChatHandler(openAIService)
+	openAIService := service.NewOpenAIService(cfg.OpenAIAPIKey, logger)
+	chatHandler := handler.NewChatHandler(openAIService, logger)
 
-    // Middleware
+	// Middleware
 	e.Use(customMiddleware.RateLimiter)
 	
 	chatGroup := e.Group("")
@@ -45,16 +54,17 @@ func main() {
 
 	// Routes
 	chatGroup.POST("/chat", chatHandler.HandleChat)
-	
+
 	// Start server
 	go func() {
 		if err := e.Start(fmt.Sprintf(":%s", cfg.Port)); err != nil && err != http.ErrServerClosed {
-			e.Logger.Fatal("shutting down the server")
+			logger.Error("shutting down the server")
 		}
 	}()
+	
 	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
 	// Use a buffered channel to avoid missing signals as recommended for signal.Notify
-	quit := make(chan os.Signal, 1)
+	quit := make(chan os.Signal, 2)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	fmt.Println("Shutting down server...")
