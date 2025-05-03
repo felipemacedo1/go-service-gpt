@@ -29,3 +29,10 @@ Ele faz parte da plataforma modular de assistente inteligente e é responsável 
 
 ## 📁 Estrutura (sugestão)
 
+## 🐳 Docker
+
+Para rodar o serviço usando Docker, siga os passos abaixo:
+
+1.  **Construa a imagem Docker:**
+
+
