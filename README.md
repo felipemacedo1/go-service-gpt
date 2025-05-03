@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!--
 # GPT Service (Go)
 
@@ -27,4 +28,4 @@ Ele faz parte da plataforma modular de assistente inteligente e é responsável 
 - Suporte futuro para limites de uso por plano
 
 ## 📁 Estrutura (sugestão)
--->
+
