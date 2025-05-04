@@ -121,4 +121,4 @@ docker-compose up --build
 ---
 
 ## 👨‍💻 Autor
-Felipe Macedo – [GitHub](https://github.com/felipemacedo-dev) | Projeto Open Source Modular
+Felipe Macedo – [GitHub](https://github.com/felipemacedo1) | Projeto Open Source Modular
