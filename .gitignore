@@ -1,3 +1,30 @@
 tmp/
 *.log
 *.log.env
+# Go binaries
+/bin/
+/build/
+/dist/
+
+# Compiled files
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Output of `go coverage`
+*.out
+
+# IDE / Editor configs
+.vscode/
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
